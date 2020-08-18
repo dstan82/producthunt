@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-HomePage !
+
+{% for product in products.all %}
+
+<h1>{{product.title}}</h1>
+<br />
+<img class='img-fluid' src='{{ product.image.url }}' width='400' />
+{% endfor %}
+
+
+
 {% endblock %}

@@ -5,7 +5,8 @@ from django.utils import timezone
 
 
 def home(request):
-    return render(request, 'products/home.html')
+    products = Product.objects
+    return render(request, 'products/home.html', {'products': products})
 
 
 @login_required
@@ -37,3 +38,11 @@ def create(request):
 def details(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     return render(request, 'products/details.html', {'product': product})
+
+@login_required
+def upvote(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, pk=product_id)
+        product.votes_total += 1
+        product.save()
+        return redirect('/products/' + str(product.id))
