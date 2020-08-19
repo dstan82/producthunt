@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Product
+from .models import Product, Vote
 from django.utils import timezone
-
+from django.db import models
+from django.db.models import Count
 
 def home(request):
     products = Product.objects.order_by('-votes_total')
-    return render(request, 'products/home.html', {'products': products})
+    votes = Vote.objects
+    return render(request, 'products/home.html', {'products': products, 'votes': votes})
 
 
 @login_required
@@ -37,13 +39,19 @@ def create(request):
 
 def details(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
-    return render(request, 'products/details.html', {'product': product})
+    vote = Vote.objects.filter(voted_product_id = product_id).count()
+    return render(request, 'products/details.html', {'product': product, 'vote': vote})
 
 
 @login_required(login_url="/accounts/signup")
 def upvote(request, product_id):
     if request.method == "POST":
         product = get_object_or_404(Product, pk=product_id)
-        product.votes_total += 1
-        product.save()
+        vote = Vote()
+        vote.user = request.user
+        vote.voted_product = product
+        vote.save()
+#        product = get_object_or_404(Product, pk=product_id)
+#        product.votes_total += 1
+#        product.save()
         return redirect('/products/' + str(product.id))
